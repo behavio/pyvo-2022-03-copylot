@@ -2,6 +2,7 @@
 """
 import collections
 import math
+import pickle
 import time
 from typing import Optional
 import random
@@ -88,6 +89,13 @@ class EntropySolver:
         self.candidates = wordle.words.challenges
         self.game = game
 
+        try:
+            with open('soare.p', 'rb') as f:
+                self.soare_guess = pickle.load(f)
+        except FileNotFoundError:
+            pass
+
+
     def solve(self, max_rounds=None, verbose=False) -> tuple[int, Optional[str]]:
         """Solve the game by maximizing entropy. Take guesses from `wordle.words.all`.
         If there is only one candidate left, we're done.
@@ -100,7 +108,12 @@ class EntropySolver:
         while True:
             guesses = wordle.words.all
             with Timer() as t:
-                best_guess = max(entropies(guesses, self.candidates), key=lambda x: x[0])
+                # FIXME!
+                if rounds == 0 and self.soare_guess is not None:
+                    best_guess = 'soare'
+                else:
+                    best_guess = max(entropies(guesses, self.candidates), key=lambda x: x[0])
+
                 pattern = self.game.eval_guess(best_guess[1])
                 self.candidates = filter(self.candidates, best_guess[1], pattern)
 

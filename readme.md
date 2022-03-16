@@ -23,3 +23,12 @@ sum(1 for rounds, _ in run if rounds < 6) / len(wordle.words.challenges)
 # EntropySolver is used in similar manner
 solver.EntropySolver(wordle.Game(word_index=1)).solve(verbose=True, max_rounds=6)
 ```
+
+## Pre-computed first round
+```
+import wordle, solver
+soare_patterns = set(wordle.eval_guess(c, 'soare') for c in wordle.words.challenges)
+soare_cands = {pat:solver.filter(wordle.words.challenges, 'soare', pat) for pat in soare_patterns}
+soare_guess = {pat:max(solver.entropies(wordle.words.all, cands), key=lambda x: x[0]) for pat, cands in soare_cands.items()}
+second_cands = {pat:solver.filter(soare_cands[pat], wordle.eval_guess(), pat) for pat in soare_guess.keys()}
+```
