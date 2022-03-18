@@ -91,9 +91,10 @@ class EntropySolver:
 
         try:
             with open('soare.p', 'rb') as f:
-                self.soare_guess = pickle.load(f)
+                # (first_guess, memo_candidates, memo_guess)
+                self.memo = pickle.load(f)
         except FileNotFoundError:
-            pass
+            self.memo = None
 
 
     def solve(self, max_rounds=None, verbose=False) -> tuple[int, Optional[str]]:
@@ -108,11 +109,31 @@ class EntropySolver:
         while True:
             guesses = wordle.words.all
             with Timer() as t:
-                # FIXME!
-                if rounds == 0 and self.soare_guess is not None:
-                    best_guess = 'soare'
+                # if we got the pre-calculated data, use it
+                if self.memo and rounds < 2:
+                    if rounds == 0:
+                        best_guess = self.memo[0]
+                        pattern = self.game.eval_guess(best_guess[1])
+                        self.candidates = self.memo[1][pattern]
+                    elif rounds == 1:
+                        # best guess depends on the first guess
+                        pattern = self.game.eval_guess(self.memo[0][1])
+                        best_guess = self.memo[2][pattern]
+                        # here it's fall through to the normal loop
                 else:
-                    best_guess = max(entropies(guesses, self.candidates), key=lambda x: x[0])
+                    # to avoid getting stuck at the end, randomize the top within limits
+                    top_guesses = sorted(entropies(guesses, self.candidates), reverse=True)
+
+                    # pick all within 0.1 of the top entropy
+                    max_ent = top_guesses[0][0]
+                    for max_guess, (ent, _) in enumerate(top_guesses):
+                        if ent < max_ent - 0.1:
+                            break
+
+                    # print(max_ent, max_guess, top_guesses[:10], top_guesses[max_guess - 1])
+
+                    # pick a random guess from the top guesses
+                    best_guess = random.choice(top_guesses[:max_guess])
 
                 pattern = self.game.eval_guess(best_guess[1])
                 self.candidates = filter(self.candidates, best_guess[1], pattern)
