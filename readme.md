@@ -4,9 +4,14 @@ Written mostly by GitHub Copilot.
 
 The rest here is actually Copilot babble, trying to write a readme.
 
-> A demonstration of a project written by Copilot. At least in part, this project is a wordle solver. When Copilot is not programming, he is playing a game called "Wordle". Let's try if he can solve it.
+> A demonstration of a project written by Copilot. At least in part, this
+> project is a wordle solver. When Copilot is not programming, he is playing a
+> game called "Wordle". Let's try if he can solve it.
 
-## Slides
+This code implements a 'good' strategy, not an optimal one. For optimal
+strategies, check [Jonathan Olson's page](https://jonathanolson.net/experiments/optimal-wordle-solutions).
+
+## Slides for the talk
 
 [Google Slides](https://docs.google.com/presentation/d/1-CfTiwKeEBTSmBw0XOjhKEt5Ml5vTGjlGLExq6Od1gw/edit#slide=id.p)
 
@@ -41,6 +46,14 @@ sum(1 for rounds, _ in run if rounds < 6) / len(wordle.words.challenges)
 import statistics
 statistics.mean(r+1 for r, _ in run)
 # 3.639
+
+# a histogram
+[(k,  cc[k]) for k in sorted(cc.keys())]
+[(1, 22), (2, 898), (3, 1284), (4, 102), (5, 3)]
+
+# the difficult words
+[(i, w) for i, (r, w) in enumerate(run) if r == 5]
+[(145, 'baker'), (2219, 'wafer'), (2229, 'waver')]
 ```
 
 ## Pre-computed first round
